@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeFlow Debugger</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/dracula.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { background: #1e1e2f; color: #f8f8f2; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        header { background: #282a36; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        header h1 { font-size: 1.6rem; color: #50fa7b; }
+        .controls { background: #282a36; padding: 10px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .controls select, .controls button { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        .controls select { background: #44475a; color: #f8f8f2; }
+        .controls button { background: #6272a4; color: #f8f8f2; }
+        .controls button:hover { background: #50fa7b; color: #282a36; }
+        .main-content { display: flex; gap: 15px; flex-wrap: wrap; }
+        .code-editor-container, .visualizer-container { flex: 1; min-width: 400px; background: #282a36; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .CodeMirror { height: 500px !important; border-radius: 5px; border: 1px solid #44475a; }
+        .visualizer-container { overflow-x: auto; }
+        #visualizer { height: 500px; border-radius: 5px; border: 1px solid #44475a; }
+        .debug-controls { background: #282a36; padding: 10px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .debug-controls button { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+        #stepOver { background: #ffb86c; color: #282a36; }
+        #stepOver:hover { background: #ff9f43; }
+        #stepInto { background: #8be9fd; color: #282a36; }
+        #stepInto:hover { background: #54d1db; }
+        #stepOut { background: #bd93f9; color: #282a36; }
+        #stepOut:hover { background: #9b59b6; }
+        #stepBackward { background: #ff5555; color: #f8f8f2; }
+        #stepBackward:hover { background: #e74c3c; }
+        #reset { background: #6272a4; color: #f8f8f2; }
+        #reset:hover { background: #50fa7b; }
+        .output-container { background: #282a36; padding: 10px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .output-container pre { white-space: pre-wrap; font-size: 0.9rem; color: #f8f8f2; }
+        .alert-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .alert { background: #ff5555; color: #f8f8f2; padding: 8px 16px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+        .breakpoint { background-color: #ff5555 !important; }
+        @media (max-width: 900px) { .main-content { flex-direction: column; } .code-editor-container, .visualizer-container { min-width: 100%; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>CodeFlow Debugger</h1>
+    </header>
+    <div class="controls">
+        <select id="languageSelect">
+            <option value="JavaScript">JavaScript</option>
+            <option value="Java">Java</option>
+        </select>
+        <button id="debugBtn">Start Debugging</button>
+    </div>
+    <div class="main-content">
+        <div class="code-editor-container">
+            <textarea id="codeInput"></textarea>
+        </div>
+        <div class="visualizer-container">
+            <div id="visualizer"></div>
+        </div>
+    </div>
+    <div class="debug-controls">
+        <button id="stepBackward">Step Backward</button>
+        <button id="stepOver">Step Over</button>
+        <button id="stepInto">Step Into</button>
+        <button id="stepOut">Step Out</button>
+        <button id="reset">Reset</button>
+    </div>
+    <div class="output-container">
+        <pre id="outputDisplay">Program output will appear here...</pre>
+    </div>
+    <div id="alertContainer" class="alert-container"></div>
+</div>
+<script src="js/debugcode.js"></script>
+</body>
+</html>

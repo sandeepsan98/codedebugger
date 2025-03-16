@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/monokai.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: #e9ecef;
+            color: #2d3436;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: #0984e3;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls select,
+        .controls input[type="text"],
+        .controls button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .controls select:focus,
+        .controls input[type="text"]:focus {
+            border-color: #0984e3;
+        }
+
+        .controls button {
+            background: #0984e3;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #0652dd;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .code-editor-container,
+        .visualizer-container {
+            flex: 1;
+            min-width: 400px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .code-editor-container {
+            flex: 1.2;
+        }
+
+        .CodeMirror {
+            height: 500px !important;
+            border-radius: 8px;
+            border: 1px solid #dfe6e9;
+            font-size: 1rem;
+        }
+
+        .visualizer-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        #visualizer {
+            height: 500px;
+            border-radius: 8px;
+            border: 1px solid #dfe6e9;
+            display: block;
+        }
+
+        .output-section {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        .output-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .output-info p {
+            font-size: 1rem;
+            color: #636e72;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .controls-bottom {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .speed-control input[type="range"] {
+            width: 150px;
+        }
+
+        .speed-control span {
+            font-size: 1rem;
+            color: #636e72;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #toggleAnimation {
+            background: #00b894;
+            color: #fff;
+        }
+
+        #toggleAnimation:hover {
+            background: #009875;
+        }
+
+        #stepBackward,
+        #stepForward {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+
+        #stepBackward:hover,
+        #stepForward:hover {
+            background: #f1b94e;
+        }
+
+        #reset {
+            background: #e17055;
+            color: #fff;
+        }
+
+        #reset:hover {
+            background: #d35400;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .alert {
+            background: #e17055;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .code-editor-container,
+            .visualizer-container {
+                min-width: 100%;
+            }
+
+            .controls-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Algorithm Visualizer</h1>
+    </header>
+    <div class="controls">
+        <select id="algorithmSelect">
+            <option value="quickSort">Quick Sort</option>
+            <option value="insertionSort">Insertion Sort</option>
+            <option value="mergeSort">Merge Sort</option>
+            <option value="heapSort">Heap Sort</option>
+            <option value="bubbleSort">Bubble Sort</option>
+            <option value="selectionSort">Selection Sort</option>
+        </select>
+        <select id="languageSelect">
+            <option value="JavaScript">JavaScript</option>
+            <option value="Java">Java</option>
+        </select>
+        <input type="text" id="customInput" placeholder="Enter exactly 50 numbers (1-100), e.g., 1, 2, ..., 50">        <label><input type="checkbox" id="soundToggle" checked> Sound</label>
+        <button id="visualizeBtn">Visualize</button>
+    </div>
+    <div class="main-content">
+        <div class="code-editor-container">
+            <textarea id="codeInput"></textarea>
+        </div>
+        <div class="visualizer-container">
+            <div id="visualizer"></div>
+        </div>
+    </div>
+    <div class="output-section">
+        <div class="output-info">
+            <p id="outputResult">Output: </p>
+            <p id="executionTime">Execution Time: </p>
+        </div>
+        <div class="controls-bottom">
+            <div class="speed-control">
+                <input type="range" id="speedSlider" min="100" max="2000" value="1000" step="100">
+                <span id="speedValue">1000ms</span>
+            </div>
+            <div class="buttons">
+                <button id="toggleAnimation">Pause</button>
+                <button id="stepBackward">Step Backward</button>
+                <button id="stepForward">Step Forward</button>
+                <button id="reset">Reset</button>
+            </div>
+        </div>
+    </div>
+    <div id="alertContainer" class="alert-container"></div>
+</div>
+<script src="js/script.js"></script>
+</body>
+</html>
